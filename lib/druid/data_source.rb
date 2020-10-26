@@ -64,6 +64,10 @@ module Druid
       response = Net::HTTP.new(uri.host, uri.port).start do |http|
         http.open_timeout = 10 # if druid is down fail fast
         http.read_timeout = nil # we wait until druid is finished
+        if !ENV["DRUID_BASIC_AUTH"].nil?
+          username, password = ENV["DRUID_BASIC_AUTH"].split("/")
+          http.basic_auth(username, password)
+        end
         http.request(req)
       end
 

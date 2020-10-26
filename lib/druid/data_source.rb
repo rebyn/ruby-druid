@@ -60,14 +60,14 @@ module Druid
 
       req = Net::HTTP::Post.new(uri.path, { 'Content-Type' => 'application/json' })
       req.body = query.to_json
+      if !ENV["DRUID_BASIC_AUTH"].nil?
+        username, password = ENV["DRUID_BASIC_AUTH"].split("/")
+        req.basic_auth(username, password)
+      end
 
       response = Net::HTTP.new(uri.host, uri.port).start do |http|
         http.open_timeout = 10 # if druid is down fail fast
         http.read_timeout = nil # we wait until druid is finished
-        if !ENV["DRUID_BASIC_AUTH"].nil?
-          username, password = ENV["DRUID_BASIC_AUTH"].split("/")
-          http.basic_auth(username, password)
-        end
         http.request(req)
       end
 

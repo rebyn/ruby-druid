@@ -67,7 +67,11 @@ module Druid
 
       response = Net::HTTP.new(uri.host, uri.port).start do |http|
         http.open_timeout = 10 # if druid is down fail fast
-        http.read_timeout = nil # we wait until druid is finished
+        if !ENV["DRUID_READ_TIMEOUT"].nil?
+          http.read_timeout = 1   # we need druid to return within 1 second or fail over
+        else
+          http.read_timeout = nil # we wait until druid is finished
+        end
         http.request(req)
       end
 
